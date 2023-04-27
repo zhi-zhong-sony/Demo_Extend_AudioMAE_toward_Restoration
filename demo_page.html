@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Demo&colon; Extend Audio MAE toward Audio Restoration</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="demo-extend-audio-mae-toward-audio-restoration">Demo: Extend Audio MAE toward Audio Restoration</h1>
+<p>This is the demo page for the paper &quot;Extending Audio Masked Autoencoders toward Audio Restoration&quot;.</p>
+<hr>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#demo-extend-audio-mae-toward-audio-restoration">Demo: Extend Audio MAE toward Audio Restoration</a>
+<ul>
+<li><a href="#table-of-contents">Table of contents</a></li>
+<li><a href="#pretraining-dataset">Pretraining Dataset</a>
+<ul>
+<li><a href="#audioset">AudioSet</a></li>
+<li><a href="#libritts">LibriTTS</a></li>
+</ul>
+</li>
+<li><a href="#audio-classification">Audio Classification</a>
+<ul>
+<li><a href="#speech-command-ver2">Speech Command Ver.2</a></li>
+<li><a href="#audioset-1">AudioSet</a></li>
+</ul>
+</li>
+<li><a href="#speech-enhancement-valentinis-dataset">Speech Enhancement: Valentini's Dataset</a>
+<ul>
+<li><a href="#from-scratch-vs-pretrained">From-scratch vs. Pretrained</a></li>
+<li><a href="#vit-ae-istft-vs-mel-to-mel-vit-ae">ViT-AE-iSTFT vs. Mel-to-mel ViT-AE</a></li>
+<li><a href="#comparison-with-existing-methods">Comparison with Existing Methods</a></li>
+</ul>
+</li>
+<li><a href="#speech-enhancement-out-of-domain-daps-dataset">Speech Enhancement: Out-of-domain DAPS Dataset</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="pretraining-dataset">Pretraining Dataset</h2>
+<p>We provide several samples from AudioSet and LibriTTS to briefly illustrate features of these datasets.</p>
+<hr>
+<h3 id="audioset">AudioSet</h3>
+<p>AudioSet contains around 2 million 10-second (some are shorter than 10s) audio segments taken from YouTube, annotated with 527 diverse classes. AudioSet has been widely used in general audio representation learning.</p>
+<table border="0">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Sample</b></td>
+        <td style="text-align: center; font-size:150%">Sample 1</td>
+        <td style="text-align: center; font-size:150%">Sample 2</td>
+        <td style="text-align: center; font-size:150%">Sample 3</td>
+        <td style="text-align: center; font-size:150%">Sample 4</td>
+        <td style="text-align: center; font-size:150%">Sample 5</td>
+        <td style="text-align: center; font-size:150%">Sample 6</td>
+        <td style="text-align: center; font-size:150%">Sample 7</td>
+        <td style="text-align: center; font-size:150%">Sample 8</td>
+    </tr>
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">Audio</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--4gqARaEJE.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--BfvyPmVMo.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--i-y1v8Hy8.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0CamVQdP_Y.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0Gj8-vB1q4.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0jeONf82dE.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-3-4qmWSJXU.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y02Ak1eIyj3M.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+</table>
+<hr>
+<h3 id="libritts">LibriTTS</h3>
+<p>LibriTTS is a large-scale corpus of English audiobooks presented at sentence break.</p>
+<table border="0">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Sample</b></td>
+        <td style="text-align: center; font-size:150%">Sample 1</td>
+        <td style="text-align: center; font-size:150%">Sample 2</td>
+        <td style="text-align: center; font-size:150%">Sample 3</td>
+        <td style="text-align: center; font-size:150%">Sample 4</td>
+        <td style="text-align: center; font-size:150%">Sample 5</td>
+        <td style="text-align: center; font-size:150%">Sample 6</td>
+        <td style="text-align: center; font-size:150%">Sample 7</td>
+        <td style="text-align: center; font-size:150%">Sample 8</td>
+    </tr>
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Audio</b></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/19_198_000000_000000.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/27_123349_000001_000001.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/40_222_000002_000001.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/60_121082_000003_000000.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/83_3054_000004_000004.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/125_121124_000009_000003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/200_124139_000002_000000.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/LibriTTS/201_122255_000001_000000.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+    </tr>
+</table>
+<hr>
+<h2 id="audio-classification">Audio Classification</h2>
+<p>We provide several test files from AudioSet and SPCv2 to briefly illustrate features of these classification tasks.</p>
+<hr>
+<h3 id="speech-command-ver2">Speech Command Ver.2</h3>
+<p>The dataset presents a 35-class single-label speech command recognition task. The decision in test set is made by selecting the command that is predicted to have the highest (top-1) probability. The top-1 accuracy in test set is 97.8% for both LibriTTS and AudioSet pretraining. Eight segments are shared in this demo, whose ground truth labels are listed on top of the audio file. The model correctly predicted the command for all eight files.</p>
+<table border="0">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Label</b></td>
+        <td style="text-align: center; font-size:150%">Backward</td>
+        <td style="text-align: center; font-size:150%">Cat</td>
+        <td style="text-align: center; font-size:150%">Dog</td>
+        <td style="text-align: center; font-size:150%">Eight</td>
+        <td style="text-align: center; font-size:150%">Five</td>
+        <td style="text-align: center; font-size:150%">Go</td>
+        <td style="text-align: center; font-size:150%">Happy</td>
+        <td style="text-align: center; font-size:150%">Learn</td>
+    </tr>
+        <tr>
+        <td style="text-align: left"><b style="font-size:14px">Test Audio</b></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/backward/03401e93_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/cat/ffb86d3c_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <!--<td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/cat/ffb86d3c_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>-->
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/dog/0cb74144_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/eight/0c40e715_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/five/022cd682_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/go/022cd682_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/happy/03401e93_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        <td style="text-align: center"><audio class="myaudio" src="resources/SPCv2/learn/0b57a6ed_nohash_0.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <tr>
+        <td style="text-align: left"><b style="font-size:14px">Prediction</b></td>
+        <td style="text-align: center; font-size:100%">Backward</td>
+        <td style="text-align: center; font-size:100%">Cat</td>
+        <td style="text-align: center; font-size:100%">Dog</td>
+        <td style="text-align: center; font-size:100%">Eight</td>
+        <td style="text-align: center; font-size:100%">Five</td>
+        <td style="text-align: center; font-size:100%">Go</td>
+        <td style="text-align: center; font-size:100%">Happy</td>
+        <td style="text-align: center; font-size:100%">Learn</td>
+    </tr>
+</table>
+<hr>
+<h3 id="audioset-1">AudioSet</h3>
+<p>AudioSet presents a 527-class multi-label tasks, where various sound sources, events and scenarios are included. Models are finetuned in AudioSet with two settings: AudioSet-2M (summation of imbalance and balanced subsets) and AudioSet-20k (balance subset alone). The common metric in AudioSet is mean average precision, which does not require a 0/1 binary decision (0-100% probability is required instead). For better understanding to the task, we use thresholds optimized on test set itself to produce multi-label decisions.</p>
+<p>Label classes are presented on top of the audio file, while predicted tags from AudioSet-2M and AudioSet-20K are presented below the audio file.</p>
+<table border="0">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Sample</b></td>
+        <td style="text-align: center; font-size:150%">Sample 1</td>
+        <td style="text-align: center; font-size:150%">Sample 2</td>
+        <td style="text-align: center; font-size:150%">Sample 3</td>
+        <td style="text-align: center; font-size:150%">Sample 4</td>
+        <td style="text-align: center; font-size:150%">Sample 5</td>
+        <td style="text-align: center; font-size:150%">Sample 6</td>
+        <td style="text-align: center; font-size:150%">Sample 7</td>
+        <td style="text-align: center; font-size:150%">Sample 8</td>
+    </tr>
+        <tr>
+        <td style="text-align: left"><b style="font-size:14px">Labels</b></td>
+        <td style="text-align: center; font-size:100%">Animal;"Domestic animals, pets";Dog;Squeak</td>
+        <td style="text-align: center; font-size:100%">Hammer</td>
+        <td style="text-align: center; font-size:100%">Speech;Female singing;Child singing;Music</td>
+        <td style="text-align: center; font-size:100%">Speech;"Walk, footsteps";Music</td>
+        <td style="text-align: center; font-size:100%">Music,Theme music,Christmas music</td>
+        <td style="text-align: center; font-size:100%">Speech,Animal,Horse,"Neigh, whinny",Music</td>
+        <td style="text-align: center; font-size:100%">Thunderstorm,Thunder,Rain,Rain on surface</td>
+        <td style="text-align: center; font-size:100%">Emergency vehicle,Ambulance (siren),Siren</td>
+        </tr>
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">Audio</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--4gqARaEJE.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--BfvyPmVMo.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y--i-y1v8Hy8.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0CamVQdP_Y.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0Gj8-vB1q4.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-0jeONf82dE.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y-3-4qmWSJXU.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/AudioSet/Y02Ak1eIyj3M.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <tr>
+        <td style="text-align: left"><b style="font-size:14px">AS-2M Prediction</b></td>
+        <td style="text-align: center; font-size:100%">Whimper,Animal,"Domestic animals, pets",Dog,Whimper (dog)</td>
+        <td style="text-align: center; font-size:100%">Hammer</td>
+        <td style="text-align: center; font-size:100%">Speech;"Child speech, kid speaking";Whimper;Children playing;"Inside, large room or hall";"Outside, urban or manmade"</td>
+        <td style="text-align: center; font-size:100%">Speech;Music</td>
+        <td style="text-align: center; font-size:100%">Music,New-age music,Background music,Theme music,Sad music,Tender music</td>
+        <td style="text-align: center; font-size:100%">Speech,Animal,Horse,"Neigh, whinny",Music</td>
+        <td style="text-align: center; font-size:100%">Thunderstorm,Thunder,Rain,Raindrop,Rain on surface</td>
+        <td style="text-align: center; font-size:100%">Motor vehicle (road),Emergency vehicle,Ambulance (siren),"Fire engine, fire truck (siren)",Siren</td>
+        </tr>
+        <tr>
+        <td style="text-align: left"><b style="font-size:14px">AS-20K Prediction</b></td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">unknown</td>
+        </tr>
+</table>
+<hr>
+<h2 id="speech-enhancement-valentinis-dataset">Speech Enhancement: Valentini's Dataset</h2>
+<p>We provide several test files from AudioSet and SPCv2 to briefly illustrate features of these classification tasks.</p>
+<h3 id="from-scratch-vs-pretrained">From-scratch vs. Pretrained</h3>
+<table border="1px">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Pretrain</b></td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="3" style="text-align: center; font-size:150%">From-scratch</td>
+        <td colspan="3" style="text-align: center; font-size:150%">LibriTTS</td>
+        <td colspan="3" style="text-align: center; font-size:150%">AudioSet</td>
+        <td colspan="2" style="text-align: center; font-size:150%"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Method</b></td>
+        <td style="text-align: center; font-size:100%">Noisy</td>
+        <td style="text-align: center; font-size:100%">Vanilla ViT-AE</td>
+        <td style="text-align: center; font-size:100%">Additive</td>
+        <td style="text-align: center; font-size:100%">Multiplicative</td>
+        <td style="text-align: center; font-size:100%">Vanilla</td>
+        <td style="text-align: center; font-size:100%">Additive</td>
+        <td style="text-align: center; font-size:100%">Multiplicative</td>
+        <td style="text-align: center; font-size:100%">Vanilla</td>
+        <td style="text-align: center; font-size:100%">Additive</td>
+        <td style="text-align: center; font-size:100%">Multiplicative</td>
+        <td style="text-align: center; font-size:100%">Vocoder Oracle</td>
+        <td style="text-align: center; font-size:100%">Clean</td>
+    </tr>
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_005</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vanilla/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_additive/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_multiplicative/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vanilla/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_additive/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_multiplicative/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vanilla/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_additive/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!-- p232_010 -->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_010</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vanilla/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_additive/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_multiplicative/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vanilla/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_additive/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_multiplicative/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vanilla/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_additive/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!-- p257_003 -->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_003</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vanilla/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_additive/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_multiplicative/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vanilla/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_additive/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_multiplicative/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vanilla/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_additive/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!-- p257_008 -->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_008</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vanilla/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_additive/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_multiplicative/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vanilla/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_additive/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_multiplicative/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vanilla/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_additive/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+</table>
+<hr>
+<h3 id="vit-ae-istft-vs-mel-to-mel-vit-ae">ViT-AE-iSTFT vs. Mel-to-mel ViT-AE</h3>
+<table border="1px">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Pretrain</b></td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="2" style="text-align: center; font-size:150%">From-scratch</td>
+        <td style="text-align: center; font-size:150%">LibriTTS</td>
+        <td colspan="2" style="text-align: center; font-size:150%">AudioSet</td>
+        <td style="text-align: center; font-size:150%"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Method</b></td>
+        <td style="text-align: center; font-size:100%">Noisy</td>
+        <td style="text-align: center; font-size:100%">ViT decoder with STFT input</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
+        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE</td>
+        <td style="text-align: center; font-size:100%">Clean</td>
+    </tr>
+        <!--p232_005-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_005</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_decoder/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_ae_istft/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vit_ae_istft/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--p232_010-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_010</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_decoder/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_ae_istft/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vit_ae_istft/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p232_010.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--p257_003-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_003</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_decoder/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_ae_istft/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vit_ae_istft/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--p257_008-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_008</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- from scratch -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_decoder/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/scratch_vit_ae_istft/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- LibriTTS -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/LT_vit_ae_istft/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- AudioSet -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p257_008.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+</table>
+<hr>
+<h3 id="comparison-with-existing-methods">Comparison with Existing Methods</h3>
+<hr>
+<h2 id="speech-enhancement-out-of-domain-daps-dataset">Speech Enhancement: Out-of-domain DAPS Dataset</h2>
+
+        
+        
+    </body>
+    </html>
