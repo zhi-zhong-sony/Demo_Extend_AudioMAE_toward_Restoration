@@ -42,6 +42,7 @@
     <body class="vscode-body vscode-light">
         <h1 id="demo-extend-audio-mae-toward-audio-restoration">Demo: Extend Audio MAE toward Audio Restoration</h1>
 <p>This is the demo page for the paper &quot;Extending Audio Masked Autoencoders toward Audio Restoration&quot;.</p>
+<p>It is highly recommended using a headphone or earphone when listening to these samples.</p>
 <hr>
 <h2 id="table-of-contents">Table of contents</h2>
 <ul>
@@ -68,6 +69,7 @@
 </ul>
 </li>
 <li><a href="#speech-enhancement-out-of-domain-daps-dataset">Speech Enhancement: Out-of-domain DAPS Dataset</a></li>
+<li><a href="#bonus-music-bandwidth-extension">Bonus: Music Bandwidth Extension</a></li>
 </ul>
 </li>
 </ul>
@@ -130,7 +132,7 @@
 </table>
 <hr>
 <h2 id="audio-classification">Audio Classification</h2>
-<p>We provide several test files from AudioSet and SPCv2 to briefly illustrate features of these classification tasks.</p>
+<p>We provide several test files from AudioSet and SPCv2 to demonstrate how our models perform in these classification tasks.</p>
 <hr>
 <h3 id="speech-command-ver2">Speech Command Ver.2</h3>
 <p>The dataset presents a 35-class single-label speech command recognition task. The decision in test set is made by selecting the command that is predicted to have the highest (top-1) probability. The top-1 accuracy in test set is 97.8% for both LibriTTS and AudioSet pretraining. Eight segments are shared in this demo, whose ground truth labels are listed on top of the audio file. The model correctly predicted the command for all eight files.</p>
@@ -172,7 +174,7 @@
 </table>
 <hr>
 <h3 id="audioset-1">AudioSet</h3>
-<p>AudioSet presents a 527-class multi-label tasks, where various sound sources, events and scenarios are included. Models are finetuned in AudioSet with two settings: AudioSet-2M (summation of imbalance and balanced subsets) and AudioSet-20k (balance subset alone). The common metric in AudioSet is mean average precision, which does not require a 0/1 binary decision (0-100% probability is required instead). For better understanding to the task, we use thresholds optimized on test set itself to produce multi-label decisions.</p>
+<p>AudioSet presents a 527-class multi-label tasks, where various sound sources, events and scenarios are included. Models are finetuned in AudioSet with two settings: AudioSet-2M (summation of imbalance and balanced subsets) and AudioSet-20k (balance subset alone). The common metric in AudioSet is mean average precision, which does not require a 0/1 binary decision (0-100% probability is used instead). For better understanding to the task, we use thresholds optimized on test set itself to produce multi-label decisions.</p>
 <p>Label classes are presented on top of the audio file, while predicted tags from AudioSet-2M and AudioSet-20K are presented below the audio file.</p>
 <table border="0">
     <tr>
@@ -233,8 +235,15 @@
 </table>
 <hr>
 <h2 id="speech-enhancement-valentinis-dataset">Speech Enhancement: Valentini's Dataset</h2>
-<p>We provide several test files from AudioSet and SPCv2 to briefly illustrate features of these classification tasks.</p>
+<p>We provide several test files from the standard Valentini’s dataset, which presents a test set of 824 noisy speeches without reverberation.</p>
+<hr>
 <h3 id="from-scratch-vs-pretrained">From-scratch vs. Pretrained</h3>
+<p>The objective metrics shown in Tab. 2 in the paper are calculated by resampling ViT-AE's output to 16 kHz. Tab. 2 and the below audio samples demonstrate that</p>
+<ol>
+<li>the additive and multiplicative residual ViT-AE stably outperform the vanilla version in every pretraining condition.</li>
+<li>Pretrained ViT-AE outperforms the from-scratch one for all variations of ViT-AE.</li>
+<li>The additive and multiplicative variations reflect more apparent benefits of pretraining compared to the vanilla one, revealing that the proposed variations are important to unleash the power of pretraining in SE tasks.</li>
+</ol>
 <table border="1px">
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Pretrain</b></td>
@@ -341,6 +350,12 @@
 </table>
 <hr>
 <h3 id="vit-ae-istft-vs-mel-to-mel-vit-ae">ViT-AE-iSTFT vs. Mel-to-mel ViT-AE</h3>
+<p>Objective metrics shown in Tab. 3 in the paper show that</p>
+<ol>
+<li>ViT-AE-iSTFT successfully improves objective scores and outperforms the multiplicative version in every intrusive metric especially in PESQ.</li>
+<li>Mel-to-mel ViT-AE is effective for non-intrusive metrics such as NISQA.</li>
+<li>Different variations can be used in accordance with the scenarios.</li>
+</ol>
 <table border="1px">
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Pretrain</b></td>
@@ -423,8 +438,232 @@
 </table>
 <hr>
 <h3 id="comparison-with-existing-methods">Comparison with Existing Methods</h3>
+<p>As mentioned in Sec.4.1 in the paper, our system works at the sampling rate of 22.05 kHz for the compatibility with the vocoder. We therefore offer the resampled audio samples of ViT-AE to compare our models with existing diffusion models.</p>
+<p>Please notice that these state-of-the-art diffusion models does not work for other tasks such as classification.</p>
+<table border="1px">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Comment</b></td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="2" style="text-align: center; font-size:150%">ViT-AEs Pretrained on AudioSet)</td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="2" style="text-align: center; font-size:150%">Diffusion</td>
+        <td style="text-align: center; font-size:150%"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Method</b></td>
+        <td style="text-align: center; font-size:100%">Noisy</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
+        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE</td>
+        <td style="text-align: center; font-size:100%">Vocoder Oracle</td>
+        <td style="text-align: center; font-size:100%">UNIVERSE (unofficial)</td>
+        <td style="text-align: center; font-size:100%">SGMSE+</td>
+        <!--<td style="text-align: center; font-size:100%">GP-Unified</td>-->
+        <td style="text-align: center; font-size:100%">Clean</td>
+    </tr>
+        <!--p232_005-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_005 22k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center">-</td>
+            <td style="text-align: center">-</td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--p232_005 16k-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p232_005 16k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy_16k/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft_16k/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative_16k/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder_16k/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/UNIVERSE/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/sgmse+/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!--<td style="text-align: center"><audio class="myaudio" src="resources/Valentini/sgmse_gp/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean_16k/p232_005.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--p257_003-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_003 22k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center">-</td>
+            <td style="text-align: center">-</td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+         <!--p257_003 16k-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">p257_003 16k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/noisy_16k/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_vit_ae_istft_16k/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/AS_multiplicative_16k/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/oracle_vocoder_16k/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/UNIVERSE/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/sgmse+/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!--<td style="text-align: center"><audio class="myaudio" src="resources/Valentini/sgmse_gp/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/Valentini/clean_16k/p257_003.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+</table>
 <hr>
 <h2 id="speech-enhancement-out-of-domain-daps-dataset">Speech Enhancement: Out-of-domain DAPS Dataset</h2>
+<p>we evaluate the generalization ability by applying models trained or fine-tuned on Valentini’s dataset to the unseen DAPS dataset (zero-shot condition).</p>
+<p>Please notice that</p>
+<ol>
+<li>ViT-AEs pretrained on AudioSet outperform UNIVERSE</li>
+<li>SGMSE+ is reported to have SOTA generalization ability [32], and while it worked similarly to the pretrained ViT-AE in our study, it does not work for classification tasks.</li>
+</ol>
+<table border="1px">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Comment</b></td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="2" style="text-align: center; font-size:150%">ViT-AEs Pretrained on AudioSet)</td>
+        <td style="text-align: center; font-size:150%"></td>
+        <td colspan="2" style="text-align: center; font-size:150%">Diffusion</td>
+        <td style="text-align: center; font-size:150%"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Method</b></td>
+        <td style="text-align: center; font-size:100%">Noisy</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
+        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE</td>
+        <td style="text-align: center; font-size:100%">Vocoder Oracle</td>
+        <td style="text-align: center; font-size:100%">UNIVERSE (unofficial)</td>
+        <td style="text-align: center; font-size:100%">SGMSE+</td>
+        <!--<td style="text-align: center; font-size:100%">GP-Unified</td>-->
+        <td style="text-align: center; font-size:100%">Clean</td>
+    </tr>
+        <!--ipad_balcony-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">f10_script5_ipad_balcony1 22k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/noisy/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_vit_ae_istft/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_multiplicative/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/oracle/f10_script5_clean_generated.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center">-</td>
+            <td style="text-align: center">-</td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/clean/f10_script5_clean.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--ipad_balcony 16k-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">f10_script5_ipad_balcony1 16k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/noisy_16k/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_vit_ae_istft_16k/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_multiplicative_16k/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/oracle_16k/f10_script5_clean_generated.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/universe/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/sgmse+/f10_script5_ipad_balcony1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/clean_16k/f10_script5_clean.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--ipadflat_confroom-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">f10_script5_ipadflat_confroom1 22k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/noisy/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_vit_ae_istft/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_multiplicative/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/oracle/f10_script5_clean_generated.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center">-</td>
+            <td style="text-align: center">-</td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/clean/f10_script5_clean.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--ipadflat_confroom 16k-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">f10_script5_ipadflat_confroom1 16k</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/noisy_16k/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- ViT-AE -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_vit_ae_istft_16k/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/AS_multiplicative_16k/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/oracle_16k/f10_script5_clean_generated.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!-- Diffusion -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/universe/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/sgmse+/f10_script5_ipadflat_confroom1.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <!--<td style="text-align: center">-</td>-->
+            <!-- Ground Truth -->
+            <td style="text-align: center"><audio class="myaudio" src="resources/DAPS_clip/clean_16k/f10_script5_clean.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+</table>
+<hr>
+<h2 id="bonus-music-bandwidth-extension">Bonus: Music Bandwidth Extension</h2>
+<p>Bandwidth extension (BWE) is also an important restoration tasks. As mentioned in the paper, pretraining with AudioSet makes it feasible for the ViT-AE to extend to non-speech tasks. In this bonus session, we offer a demo of music BWE, where the narrowband input at the sampling rate of 11 kHz is converted to 22 kHz. Each track is 30-second long.</p>
+<p>The ViT-AE pretrained on AudioSet (the same one used in the paper) is fine-tuned with Free Music Archive (FMA) dataset. As the multiplicative ViT-AE is not suitable to BWE tasks (it is difficult to create new contents by a mask valued between 0% to 100%), we use the additive ViT-AE instead. The additive ViT-AE learns to predict the high frequency components, and sum these components with the narrowband input to extend the bandwidth.</p>
+<p>We use log spectral distance (LSD), a common metric for BWE tasks, to evaluate the performance of our model. For the below eight samples, additive ViT-AE significantly improved the LSD from 4.02 to 0.89 (the closer to 0, the better). We leave in-depth investigation of restoration tasks such as BWE or de-clipping to our future work.</p>
+<table border="1px">
+    <tr>
+        <td style="text-align: left"><b style="font-size:14px">Track in FMA</b></td>
+        <td style="text-align: center; font-size:100%">001381</td>
+        <td style="text-align: center; font-size:100%">011019</td>
+        <td style="text-align: center; font-size:100%">013706</td>
+        <td style="text-align: center; font-size:100%">014653</td>
+        <td style="text-align: center; font-size:100%">076363</td>
+        <td style="text-align: center; font-size:100%">085307</td>
+        <td style="text-align: center; font-size:100%">110743</td>
+        <td style="text-align: center; font-size:100%">113262</td>
+    </tr>
+    </tr>
+        <!--11k input-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">11k input</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/001381.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/011019.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/013706.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/014653.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/076363.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/085307.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/110743.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/11k/113262.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--Additive ViT-AE-->
+        <tr>
+            <td style="text-align: left"><b style="font-size:14px">Additive ViT-AE</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/001381.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/011019.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/013706.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/014653.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/076363.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/085307.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/110743.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/113262.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>
+        <!--Oracle-->
+        <!--<tr>
+            <td style="text-align: left"><b style="font-size:14px">Oracle Vocoder</b></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/001381.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/011019.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/013706.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/014653.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/076363.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/085307.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/110743.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+            <td style="text-align: center"><audio class="myaudio" src="resources/FMA/oracle/113262.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
+        </tr>-->
 
         
         
