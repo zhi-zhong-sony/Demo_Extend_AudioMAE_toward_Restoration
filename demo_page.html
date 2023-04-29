@@ -132,7 +132,7 @@
 </table>
 <hr>
 <h2 id="audio-classification">Audio Classification</h2>
-<p>We provide several test files from AudioSet and SPCv2 to demonstrate how our models perform in these classification tasks.</p>
+<p>We provide several test files from AudioSet and SPCv2 to demonstrate how our models behave in these classification tasks.</p>
 <hr>
 <h3 id="speech-command-ver2">Speech Command Ver.2</h3>
 <p>The dataset presents a 35-class single-label speech command recognition task. The decision in test set is made by selecting the command that is predicted to have the highest (top-1) probability. The top-1 accuracy in test set is 97.8% for both LibriTTS and AudioSet pretraining. Eight segments are shared in this demo, whose ground truth labels are listed on top of the audio file. The model correctly predicted the command for all eight files.</p>
@@ -174,7 +174,7 @@
 </table>
 <hr>
 <h3 id="audioset-1">AudioSet</h3>
-<p>AudioSet presents a 527-class multi-label tasks, where various sound sources, events and scenarios are included. Models are finetuned in AudioSet with two settings: AudioSet-2M (summation of imbalance and balanced subsets) and AudioSet-20k (balance subset alone). The common metric in AudioSet is mean average precision, which does not require a 0/1 binary decision (0-100% probability is used instead). For better understanding to the task, we use thresholds optimized on test set itself to produce multi-label decisions.</p>
+<p>AudioSet presents a 527-class multi-label tasks, where various sound sources, events and scenarios are included. Models are finetuned in AudioSet with two settings: AudioSet-2M (summation of unbalanced and balanced subsets) and AudioSet-20k (balance subset alone). The common metric in AudioSet is mean average precision, which does not require a 0/1 binary decision (0-100% probability is used instead). However, for better understanding to the task, we use thresholds optimized on test set itself to produce multi-label decisions.</p>
 <p>Label classes are presented on top of the audio file, while predicted tags from AudioSet-2M and AudioSet-20K are presented below the audio file.</p>
 <table border="0">
     <tr>
@@ -223,14 +223,14 @@
         </tr>
         <tr>
         <td style="text-align: left"><b style="font-size:14px">AS-20K Prediction</b></td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
-        <td style="text-align: center; font-size:100%">unknown</td>
+        <td style="text-align: center; font-size:100%">Whimper;Theremin</td>
+        <td style="text-align: center; font-size:100%">No tag is predicted</td>
+        <td style="text-align: center; font-size:100%">Speech;"Child speech, kid speaking";Whimperl;Children playing;Music;"Inside, large room or hall";"Outside, urban or manmade"</td>
+        <td style="text-align: center; font-size:100%">Music;Mandolin</td>
+        <td style="text-align: center; font-size:100%">Music;Background music;Theme music;Soundtrack music;Sad music</td>
+        <td style="text-align: center; font-size:100%">Speech;Horse;"Neigh, whinny";Music</td>
+        <td style="text-align: center; font-size:100%">Thunderstorm;Thunder;Rain;Raindrop;Rain on surface;Rustle;White noise</td>
+        <td style="text-align: center; font-size:100%">Vehicle;Motor vehicle (road);"Vehicle horn, car horn, honking";Truck;Emergency vehicle;Ambulance (siren);Siren</td>
         </tr>
 </table>
 <hr>
@@ -439,7 +439,7 @@
 <hr>
 <h3 id="comparison-with-existing-methods">Comparison with Existing Methods</h3>
 <p>As mentioned in Sec.4.1 in the paper, our system works at the sampling rate of 22.05 kHz for the compatibility with the vocoder. We therefore offer the resampled audio samples of ViT-AE to compare our models with existing diffusion models.</p>
-<p>Please notice that these state-of-the-art diffusion models does not work for other tasks such as classification.</p>
+<p>Please notice that these state-of-the-art diffusion models does not work for other tasks such as classification. We leave the improvement of ViT-AE’s objective scores to future work.</p>
 <table border="1px">
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Comment</b></td>
@@ -452,8 +452,8 @@
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Method</b></td>
         <td style="text-align: center; font-size:100%">Noisy</td>
-        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
-        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT (ours)</td>
+        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE (ours)</td>
         <td style="text-align: center; font-size:100%">Vocoder Oracle</td>
         <td style="text-align: center; font-size:100%">UNIVERSE (unofficial)</td>
         <td style="text-align: center; font-size:100%">SGMSE+</td>
@@ -526,7 +526,11 @@
 <p>we evaluate the generalization ability by applying models trained or fine-tuned on Valentini’s dataset to the unseen DAPS dataset (zero-shot condition).</p>
 <p>Please notice that</p>
 <ol>
-<li>ViT-AEs pretrained on AudioSet outperform UNIVERSE</li>
+<li>ViT-AEs pretrained on AudioSet outperform UNIVERSE
+<ul>
+<li>the diverse audio sources and recording environments in AudioSet have been beneficial for generalization</li>
+</ul>
+</li>
 <li>SGMSE+ is reported to have SOTA generalization ability [32], and while it worked similarly to the pretrained ViT-AE in our study, it does not work for classification tasks.</li>
 </ol>
 <table border="1px">
@@ -541,8 +545,8 @@
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Method</b></td>
         <td style="text-align: center; font-size:100%">Noisy</td>
-        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT</td>
-        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE</td>
+        <td style="text-align: center; font-size:100%">ViT-AE-iSTFT (ours)</td>
+        <td style="text-align: center; font-size:100%">Multiplicative ViT-AE (ours)</td>
         <td style="text-align: center; font-size:100%">Vocoder Oracle</td>
         <td style="text-align: center; font-size:100%">UNIVERSE (unofficial)</td>
         <td style="text-align: center; font-size:100%">SGMSE+</td>
@@ -612,9 +616,9 @@
 </table>
 <hr>
 <h2 id="bonus-music-bandwidth-extension">Bonus: Music Bandwidth Extension</h2>
-<p>Bandwidth extension (BWE) is also an important restoration tasks. As mentioned in the paper, pretraining with AudioSet makes it feasible for the ViT-AE to extend to non-speech tasks. In this bonus session, we offer a demo of music BWE, where the narrowband input at the sampling rate of 11 kHz is converted to 22 kHz. Each track is 30-second long.</p>
-<p>The ViT-AE pretrained on AudioSet (the same one used in the paper) is fine-tuned with Free Music Archive (FMA) dataset. As the multiplicative ViT-AE is not suitable to BWE tasks (it is difficult to create new contents by a mask valued between 0% to 100%), we use the additive ViT-AE instead. The additive ViT-AE learns to predict the high frequency components, and sum these components with the narrowband input to extend the bandwidth.</p>
-<p>We use log spectral distance (LSD), a common metric for BWE tasks, to evaluate the performance of our model. For the below eight samples, additive ViT-AE significantly improved the LSD from 4.02 to 0.89 (the closer to 0, the better). We leave in-depth investigation of restoration tasks such as BWE or de-clipping to our future work.</p>
+<p>Bandwidth extension (BWE) is also an important restoration task. As mentioned in the paper, pretraining with AudioSet makes the ViT-AE compatible non-speech tasks. In this bonus session, we offer a demo of music BWE, where the narrowband input at the sampling rate of 11 kHz is converted to 22 kHz. Each track is 30-second long.</p>
+<p>In this demo, the ViT-AE pretrained on AudioSet (the same one used in the paper) is fine-tuned with Free Music Archive (FMA) dataset. As the multiplicative ViT-AE or ViT-AE-iSTFT is not suitable to BWE tasks (it is difficult to create new contents by a mask valued between 0% to 100%), we use the proposed additive ViT-AE instead. The additive ViT-AE learns to predict the high frequency components, and sum these components with the narrowband input to extend the bandwidth.</p>
+<p>We use log spectral distance (LSD), a common metric for BWE tasks, to evaluate the performance of our model. For the below eight samples, additive ViT-AE significantly improved the average LSD from 4.02 to 0.89 (the closer to 0, the better). We leave in-depth investigation of restoration tasks such as BWE or de-clipping to our future work.</p>
 <table border="1px">
     <tr>
         <td style="text-align: left"><b style="font-size:14px">Track in FMA</b></td>
@@ -642,7 +646,7 @@
         </tr>
         <!--Additive ViT-AE-->
         <tr>
-            <td style="text-align: left"><b style="font-size:14px">Additive ViT-AE</b></td>
+            <td style="text-align: left"><b style="font-size:14px">Additive ViT-AE (ours)</b></td>
             <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/001381.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
             <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/011019.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
             <td style="text-align: center"><audio class="myaudio" src="resources/FMA/additive/013706.wav" controls="" style="width:150px;">alternative text</audio><br/></td>
